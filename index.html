@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GET Request Form</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: sans-serif;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      width: 300px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      border-bottom: none;
+      cursor: pointer;
+      width: 33%;
+      background-color: #333;
+      margin-right: 5px;
+    }
+
+    .tab.active {
+      background-color: #555;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      width: 300px;
+    }
+
+    /* Стили для формы */
+    .tovar-form {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .tovar-form.active {
+      display: block;
+    }
+
+    .first-tab {
+      border-top-left-radius: 10px !important;
+    }
+
+    .end-tab {
+      border-top-right-radius: 10px !important;
+    }
+
+    .radio-form {
+      display: flex;
+      gap: 17%;
+      width: 300px;
+      align-items: center;
+      padding-bottom: 10px;
+    }
+
+    .product-form {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 10px;
+      margin-bottom: 10px;
+      border: none;
+      background-color: #333;
+      border-radius: 5px;
+      color: white;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: linear-gradient(to left, rgb(135, 135, 255), rgb(255, 147, 255));
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="tabs">
+      <div class="first-tab tab active" data-tab="tab1">Фирма</div>
+      <div class="tab" data-tab="tab2">Клиент</div>
+      <div class="end-tab tab" data-tab="tab3">Товары</div>
+    </div>
+
+    <div class="form active" id="tab1">
+      <div class="radio-form">
+        <span style="display: flex;align-content: center;">
+          <input type="radio" id="phys_face" name="company">
+          <label for="company">Физ.лицо</label>
+        </span>
+        <span style="display: flex;align-content: center;">
+          <input type="radio" id="IP" name="company">
+          <label for="company_1">ИП</label>
+        </span>
+        <span style="display: flex;align-content: center;">
+          <input type="radio" id="OOO" name="company">
+          <label for="company_2">ООО</label>
+        </span>
+      </div>
+      <input type="text" id="name" placeholder="Название" required>
+      <input type="number" id="inn" placeholder="ИНН" required>
+      <input type="number" id="orgn" placeholder="ОРГН" required>
+      <input type="number" id="kpp" placeholder="КПП" required>
+      <input type="number" id="bik" placeholder="БИК" required>
+      <input type="text" id="wallet" placeholder="Банковский счет" required>
+      <input type="text" id="yur_address" placeholder="Юр.адрес" required>
+      <input type="text" id="ras_wallet" placeholder="Рассчетный счет" required>
+      <input type="text" id="bank" placeholder="Банк" required>
+      <input type="text" id="ceo" placeholder="ФИО руководителя" required>
+      <button id="submit1">Подтвердить</button>
+    </div>
+
+    <div class="form" id="tab2" style="display: none;">
+      <input type="text" id="client_name" placeholder="Название компании" required>
+      <input type="number" id="client_inn" placeholder="ИНН" required>
+      <input type="number" id="client_orgn" placeholder="ОРГН" required>
+      <input type="number" id="client_kpp" placeholder="КПП" required>
+      <input type="number" id="client_wallet" placeholder="Кошелек" required>
+      <input type="text" id="address" placeholder="Адресс доставки" required>
+      <input type="number" id="days" placeholder="Срок доставки" required>
+      <input type="number" id="ic_bill" placeholder="Номер счета IC-" required>
+      <input type="number" id="delivery_price" placeholder="Стоимость доставки" required>
+      <input type="text" id="client_ceo" placeholder="ФИО руководителя" required>
+      <input type="text" id="city" placeholder="Город" required>
+      <input type="text" id="client_yur_address" placeholder="Юр.адресс" required>
+      <button id="submit1">Подтвердить</button>
+    </div>
+    <div class="form" id="tab3" style="display: none;">
+      <h3>Добавление товаров</h3>
+      <div id="products-container"></div>
+      <button type="button" id="add-product">Добавить товар</button>
+      <button type="submit" id="submit1">Подтвердить (отправку формы)</button>
+    </div>
+  </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const forms = document.querySelectorAll('.form');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetTab = tab.dataset.tab;
+        const activeTab = document.querySelector('.tab.active');
+        const activeForm = document.querySelector('.form.active');
+
+        activeTab.classList.remove('active');
+        activeForm.classList.remove('active');
+        activeForm.style.display = 'none';
+
+        tab.classList.add('active');
+        document.getElementById(targetTab).classList.add('active');
+        document.getElementById(targetTab).style.display = 'flex';
+      });
+    });
+
+    // Счетчик товаров
+    let productCount = 0;
+
+    // Обработчик для добавления товаров
+    document.getElementById('add-product').addEventListener('click', function () {
+      productCount++;
+
+      const productContainer = document.createElement('div');
+      productContainer.classList.add('product-form');
+      productContainer.id = `product-${productCount}`;
+
+      productContainer.innerHTML = `
+        <h4>Товар ${productCount}</h4>
+        <input type="text" name="product_name_${productCount}" placeholder="Название товара" required>
+        <input type="number" name="product_price_${productCount}" placeholder="Цена товара" required>
+        <input type="number" name="product_quantity_${productCount}" placeholder="Количество" required>
+        <input type="text" name="product_ediz_${productCount}" placeholder="Ед.измерения" required>
+        <button type="button" class="remove-product" data-product-id="${productCount}">Удалить товар</button>
+      `;
+
+      document.getElementById('products-container').appendChild(productContainer);
+
+      // Обработчик для удаления товара
+      productContainer.querySelector('.remove-product').addEventListener('click', function () {
+        document.getElementById(`product-${this.dataset.productId}`).remove();
+      });
+    });
+
+
+    document.getElementById('submit1').addEventListener('click', function () {
+      const form1Data = {
+        companyType: document.querySelector('input[name="company"]:checked') ? document.querySelector('input[name="company"]:checked').id : '',
+        name: document.getElementById('name').value,
+        inn: document.getElementById('inn').value,
+        orgn: document.getElementById('orgn').value,
+        kpp: document.getElementById('kpp').value,
+        bik: document.getElementById('bik').value,
+        wallet: document.getElementById('wallet').value,
+        yur_address: document.getElementById('yur_address').value,
+        ras_wallet: document.getElementById('ras_wallet').value,
+        bank: document.getElementById('bank').value,
+        ceo: document.getElementById('ceo').value
+      };
+      if (!form1Data.inn & !form1Data.ceo & !form1Data.name){
+        alert("Введите данные.")
+      }
+      console.log('Фирма:', form1Data);
+
+      const form2Data = {
+        client_name: document.getElementById('client_name').value,
+        client_inn: document.getElementById('client_inn').value,
+        client_orgn: document.getElementById('client_orgn').value,
+        client_kpp: document.getElementById('client_kpp').value,
+        client_wallet: document.getElementById('client_wallet').value,
+        address: document.getElementById('address').value,
+        days: document.getElementById('days').value,
+        ic_bill: document.getElementById('ic_bill').value,
+        ceo: document.getElementById('client_ceo').value,
+        city: document.getElementById('city').value,
+        yur_address: document.getElementById('client_yur_address').value,
+        delivery_price: document.getElementById('delivery_price').value
+      };
+      if (!form2Data.client_orgn & !form2Data.client_wallet & !form2Data.city){
+        alert("Введите данные.")
+      }
+      console.log('Клиент:', form2Data);
+
+      const products = [];
+      document.querySelectorAll('.product-form').forEach(productForm => {
+        const productId = productForm.id.split('-')[1];
+        const productData = {
+          name: productForm.querySelector(`input[name="product_name_${productId}"]`).value,
+          price: productForm.querySelector(`input[name="product_price_${productId}"]`).value,
+          count: productForm.querySelector(`input[name="product_quantity_${productId}"]`).value,
+          ediz: productForm.querySelector(`input[name="product_ediz_${productId}"]`).value,
+        };
+        products.push(productData);
+      });
+      products_M = {"tovars": JSON.stringify(products)}
+      const mergedObj = Object.assign({}, products_M, form2Data, form1Data);
+      console.log('Объект передачи:', mergedObj);
+
+      const queryString = new URLSearchParams(mergedObj).toString();
+
+      fetch(`http://85.159.231.16:5500/?data=${JSON.stringify(mergedObj)}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: queryString
+      })
+      .then(resp => resp.json()) // or, resp.text(), etc
+      .then(data => {
+        console.log(data); // handle response data
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    });
+  </script>
+
+</body>
+
+</html>
